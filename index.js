@@ -1,44 +1,28 @@
-import { createServer } from 'http';
-import { usersController } from './usersController.js';
+import express from 'express';
+import cors from 'cors'
+import bodyParser from 'body-parser'
+import users from './users-router.js'
+
+const app = express()
 
 const PORT = 8000;
 
-process.on('unnhandlerRejection', function (reason, p) {
-    console.log(reason, p);
+app.use(cors())
+
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json())
+
+
+app.use('/users', users)
+
+app.get('/tasks', async (req, res) => {
+    res.send("TASKS")
 })
 
-let cors = (req, res) => {
-    //Set CORS header 
-    res.setHeader('Access-Control-Allow-Origin', '*')
-    res.setHeader('Access-Control-Request-Method', '*')
-    res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET, POST, PUT, PATCH, DELETE')
-    res.setHeader('Access-Control-Allow-Headers', '*')
-    // res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-    if (req.method === 'OPTIONS') {
-        res.writeHead(200)
-        res.end()
-        return true
-    }
-    return false
-}
-
-const app = createServer((req, res) => {
-
-    if (cors(req, res)) return
-
-
-
-    switch (req.url) {
-        case "/users":
-            usersController(req, res)
-            break;
-        case "./lessons":
-            res.write('tasks')
-            break;
-        default:
-            res.write('page not found')
-    }
-
+app.use((req, res) => {
+    res.send(404)
 })
 
-app.listen(PORT)
+app.listen(PORT, () => {
+    console.log(`Example app listening on port ${PORT}`)
+})
